@@ -236,6 +236,23 @@ class MessageController(storage.Message):
             and_stmt = sa.and_(tables.Messages.c.ttl <=
                                sfunc.now() - tables.Messages.c.created,
                                tables.Messages.c.qid == qid)
+            # sqlite
+            and_stmt = sa.and_(tables.Messages.c.ttl <=
+                               sfunc.strftime('%s', sfunc.now()) -
+                               sfunc.strftime('%s', tables.Messages.c.created),
+                               tables.Messages.c.qid == qid)
+            # postgresql
+            and_stmt = sa.and_(tables.Messages.c.ttl <=
+                               sfunc.data_part('epoch',
+                                               sfunc.now() -
+                                               tables.Messages.c.created),
+                               tables.Messages.c.qid == qid)
+            # others
+            and_stmt = sa.and_(tables.Messages.c.ttl <=
+                               sfunc.timediff(sfunc.now(),
+                                              tables.Messages.c.created),
+                               tables.Messages.c.qid == qid)
+
             statement = tables.Messages.delete().where(and_stmt)
 
             trans.execute(statement)

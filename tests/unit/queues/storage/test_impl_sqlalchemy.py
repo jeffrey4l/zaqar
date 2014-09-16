@@ -67,7 +67,7 @@ class SqlalchemyMessageTests(base.MessageControllerTest):
     controller_class = controllers.MessageController
 
     def test_expired_messages_be_deleted(self):
-        messages = [{'body': 3.14, 'ttl': 0}, {'body': 0.618, 'ttl': 600}]
+        messages = [{'body': 3.14, 'ttl': 1}, {'body': 0.618, 'ttl': 600}]
         client_uuid = uuid.uuid4()
 
         [msgid_expired, msgid] = self.controller.post(self.queue_name,
@@ -105,6 +105,8 @@ class SqlalchemyMessageTests(base.MessageControllerTest):
                              message,
                              project=self.project,
                              client_uuid=client_uuid)
+        import time
+        time.sleep(2)
 
         with testing.expect(utils.NoResult):
             _get()
